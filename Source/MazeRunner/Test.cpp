@@ -1,10 +1,12 @@
 #include "Test.h"
 
+#include <iostream>
+
 using namespace std;
 
 Test::Test(int x) {
 	_x = x;
-	UE_LOG(LogTemp, Warning, TEXT("Test: %d"), _x);
+	cout << "Test: " << _x << endl;
 }
 
 int Test::getX() {

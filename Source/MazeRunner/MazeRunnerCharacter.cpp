@@ -11,15 +11,24 @@
 #include "Materials/Material.h"
 #include "Engine/World.h"
 
+#include "Utilities.h"
 #include "Test.h"
+#include "Maze.h"
 
+#include <iostream>
 
 AMazeRunnerCharacter::AMazeRunnerCharacter()
 {
+	LStream Stream;
+	std::cout.rdbuf(&Stream);
 	for (int i = 0; i < 1000; i++) {
 		int x = 5;
 		Test test(x);
 	}
+	int height = 10, width = 10;
+	Maze maze(height, width);
+	maze.kruskals_algorithm();
+	maze.printMaze();
 
 	// Set size for player capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
