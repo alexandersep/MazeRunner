@@ -1,6 +1,4 @@
 #pragma once
-#ifndef MAZE_H
-#define MAZE_H
 
 #include <vector>
 #include <unordered_map>
@@ -52,5 +50,3 @@ private:
     unordered_map<int, int> _opposite = { {E, W}, {W, E}, {N, S}, {S, N} };
     vector<Cell> _directions = { {0, -1}, {0, 1}, {-1, 0}, {1, 0} };
 };
-
-#endif // MAZE_H

@@ -19,15 +19,27 @@
 
 AMazeRunnerCharacter::AMazeRunnerCharacter()
 {
+	// Create an LStream, in order to use cout instead of UE_LOG
 	LStream Stream;
 	std::cout.rdbuf(&Stream);
+
+	// Example of running code outside of unreal boiler plate
 	for (int i = 0; i < 1000; i++) {
 		int x = 5;
 		Test test(x);
 	}
+
+	// Define dimensions of a maze, and generate it
 	int height = 10, width = 10;
 	Maze maze(height, width);
 	maze.kruskals_algorithm();
+
+	// Example of creating a solution based on a beginning cell, and ending cell
+	Cell begin = { 0, 0 };
+	Cell end = { width - 1, height - 1 };
+	vector<Cell> solution = maze.solve(begin, end);
+
+	// Not passing solution vector, as printing ANSI colours doesn't work well with cout
 	maze.printMaze();
 
 	// Set size for player capsule
