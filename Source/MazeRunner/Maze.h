@@ -25,6 +25,22 @@ constexpr int S = 1 << 1;
 constexpr int E = 1 << 2;
 constexpr int W = 1 << 3;
 
+/*
+//
+// Example of how to run methods from the Class
+//
+
+int height = 7, width = 7;
+Maze maze(height, width);
+maze.kruskals_algorithm();
+
+pair<Cell, Cell> pos = maze.getBeginEnd();
+vector<Cell> solution = maze.solve(pos.first, pos.second);
+maze.printMaze(solution);
+vector<vector<char>> mazeMap = maze.getMazeMap();
+maze.printMazeMap(mazeMap);
+vector<vector<int>> mazeMapConverted = maze.convertMazeMapToInt(mazeMap);
+*/
 class Maze {
 public:
     Maze(int width, int height);
@@ -35,6 +51,9 @@ public:
     vector<Cell> solve(Cell begin, Cell end);
 
     void printMaze(vector<Cell> solution = {});
+    void printMazeMap(vector<vector<char>>& mazeMap);
+    vector<vector<int>> convertMazeMapToInt(vector<vector<char>>& mazeMap);
+    vector<vector<char>> getMazeMap();
 private:
     vector<Cell> getNeighbours(Cell c);
     vector<Cell> getUnvisitedNeighbours(Cell c, vector<vector<bool>>& visited);
@@ -48,5 +67,5 @@ private:
     unordered_map<int, int> _dx = { {E, 1}, {W, -1}, {N, 0}, {S, 0} };
     unordered_map<int, int> _dy = { {E, 0}, {W, 0}, {N, -1}, {S, 1} };
     unordered_map<int, int> _opposite = { {E, W}, {W, E}, {N, S}, {S, N} };
-    vector<Cell> _directions = { {0, -1}, {0, 1}, {-1, 0}, {1, 0} };
+    vector<Cell> _directions = {{0, -1}, {0, 1}, {-1, 0}, {1, 0}};
 };
