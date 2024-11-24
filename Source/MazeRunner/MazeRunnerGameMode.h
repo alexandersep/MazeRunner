@@ -13,6 +13,8 @@ class AMazeRunnerGameMode : public AGameModeBase
 
 public:
 	AMazeRunnerGameMode();
+
+	void SpawnActorAtLocation();
 };
 
 

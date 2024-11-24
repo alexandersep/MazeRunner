@@ -23,12 +23,6 @@ AMazeRunnerCharacter::AMazeRunnerCharacter()
 	LStream Stream;
 	std::cout.rdbuf(&Stream);
 
-	// Example of running code outside of unreal boiler plate
-	for (int i = 0; i < 1000; i++) {
-		int x = 5;
-		Test test(x);
-	}
-
 	// Define dimensions of a maze, and generate it
 	int height = 10, width = 10;
 	Maze maze(height, width);
@@ -60,7 +54,7 @@ AMazeRunnerCharacter::AMazeRunnerCharacter()
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
 	CameraBoom->SetUsingAbsoluteRotation(true); // Don't want arm to rotate when character does
-	CameraBoom->TargetArmLength = 800.f;
+	CameraBoom->TargetArmLength = 1600.f;
 	CameraBoom->SetRelativeRotation(FRotator(-60.f, 0.f, 0.f));
 	CameraBoom->bDoCollisionTest = false; // Don't want to pull camera in when it collides with level
 
