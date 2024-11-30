@@ -14,9 +14,13 @@ class MAZERUNNER_API AMazeGenerator : public AActor
 public:	
 	// Sets default values for this actor's properties
 	AMazeGenerator();
-	TArray<int32> gridArray;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TArray<int32> wallsGrid;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TArray<int32> cornersGrid;
 	FVector mazeStart;
 	FVector mazeEnd;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TArray<FVector> solution;
 
 protected:
@@ -28,5 +32,4 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	UFUNCTION(BlueprintCallable)
 	TArray<int32> generateMaze(int rows, int columns);
-
 };
