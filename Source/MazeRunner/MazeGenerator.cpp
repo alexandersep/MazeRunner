@@ -3,6 +3,7 @@
 
 #include "MazeGenerator.h"
 #include "MazeRunnerMazeGenerator.h"
+#include "MazeRunnerUtils.h"
 #include <iostream>
 #include <vector>
 
@@ -30,12 +31,15 @@ void AMazeGenerator::Tick(float DeltaTime)
 
 TArray<int32> AMazeGenerator::generateMaze(int rows, int columns)
 {
-	MazeRunnerMazeGenerator maze = MazeRunnerMazeGenerator(rows, columns);
+	auto generator = MazeRunnerMazeGenerator::create(rows, columns);
+	if (!generator) {
+		return {};
+	}
+	MazeRunnerMazeGenerator maze = generator.value();
 	maze.kruskals_algorithm();
-	Utils<int> utils;
 	pair<Cell, Cell> pos = maze.getBeginEnd();
 	vector<vector<int>> maze2d = maze.getMazeMap();
-	vector<int> mazeMap = utils.flatten(maze2d);
+	vector<int> mazeMap = Utils::flatten(maze2d);
 	
 	// map vector<int> to TArray<int32>
 	TArray<int32> gridArr;
@@ -46,8 +50,8 @@ TArray<int32> AMazeGenerator::generateMaze(int rows, int columns)
 	this->wallsGrid = gridArr;
 	
 	// get and map corners
-	vector<vector<int>> corners2d = maze.getCornerMap(maze2d);
-	vector<int> cornersMap = utils.flatten(corners2d);
+	vector<vector<int>> corners2d = maze.getCornerMap();
+	vector<int> cornersMap = Utils::flatten(corners2d);
 	TArray<int32> cornersArr;
 	cornersArr.SetNumUninitialized(cornersMap.size());
 	for (int i = 0; i < cornersMap.size(); i++) {
