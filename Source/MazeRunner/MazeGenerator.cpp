@@ -32,8 +32,10 @@ TArray<int32> AMazeGenerator::generateMaze(int rows, int columns)
 {
 	MazeRunnerMazeGenerator maze = MazeRunnerMazeGenerator(rows, columns);
 	maze.kruskals_algorithm();
+	Utils<int> utils;
 	pair<Cell, Cell> pos = maze.getBeginEnd();
-	vector<int> mazeMap = maze.getMazeMap();
+	vector<vector<int>> maze2d = maze.getMazeMap();
+	vector<int> mazeMap = utils.flatten(maze2d);
 	
 	// map vector<int> to TArray<int32>
 	TArray<int32> gridArr;
@@ -41,8 +43,19 @@ TArray<int32> AMazeGenerator::generateMaze(int rows, int columns)
 	for (int i = 0; i < mazeMap.size(); i++) {
 		gridArr[i] = mazeMap[i];
 	}
-	this->gridArray = gridArr;
+	this->wallsGrid = gridArr;
 	
+	// get and map corners
+	vector<vector<int>> corners2d = maze.getCornerMap(maze2d);
+	vector<int> cornersMap = utils.flatten(corners2d);
+	TArray<int32> cornersArr;
+	cornersArr.SetNumUninitialized(cornersMap.size());
+	for (int i = 0; i < cornersMap.size(); i++) {
+		cornersArr[i] = cornersMap[i];
+	}
+
+	this->cornersGrid = cornersArr;
+
 	// map pos.first to FVector mazeStart
 	this->mazeStart = FVector(static_cast<float>(pos.first.first), static_cast<float>(pos.first.second), 0.0f);
 

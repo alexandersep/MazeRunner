@@ -1,8 +1,8 @@
-#ifndef MAZE_GENERATOR_H
-#define MAZE_GENERATOR_H
+#pragma once
 
 #include <vector>
 #include <unordered_map>
+#include <string>
 
 using namespace std;
 
@@ -26,9 +26,14 @@ constexpr int S = 1 << 1;
 constexpr int E = 1 << 2;
 constexpr int W = 1 << 3;
 
+constexpr int CORNER_LEFT_UP = 1;
+constexpr int CORNER_RIGHT_UP = 1 << 1;
+constexpr int CORNER_LEFT_DOWN = 1 << 2;
+constexpr int CORNER_RIGHT_DOWN = 1 << 3;
+
 class MazeRunnerMazeGenerator {
 public:
-    MazeRunnerMazeGenerator(int width, int height);
+    MazeRunnerMazeGenerator(int height, int width);
     void kruskals_algorithm();
     void aldous_broder_algorithm();
 
@@ -36,12 +41,15 @@ public:
     vector<Cell> solve(Cell begin, Cell end);
 
     void printMaze(vector<Cell> solution = {});
-    vector<int> getMazeMap();
+    vector<vector<int>> getMazeMap();
+    vector<vector<int>> getCornerMap(vector<vector<int>>& mazeMap);
 
 private:
     vector<Cell> getNeighbours(Cell c);
     vector<Cell> getUnvisitedNeighbours(Cell c, vector<vector<bool>>& visited);
     void dfs(Cell begin, Cell end, vector<Cell>& stack, vector<vector<bool>>& visited);
+    bool hasPassage(vector<vector<int>>& vv, Cell c, int direction);
+    int getWalls(vector<vector<int>>& vv, Cell c);
 
 private:
     vector<vector<int>> _edges;
@@ -71,6 +79,26 @@ public:
         }
         return res;
     }
+    void reverse(string& s) {
+        int l = 0;
+        int r = s.size() - 1;
+        while (l < r) {
+            swap(s[l], s[r]);
+            l++;
+            r--;
+        }
+    }
+    string toBinary(int n) {
+        if (n == 0) {
+            return { '0' };
+        }
+        string res;
+        while (n) {
+            int remainder = n % 2;
+            res.push_back(remainder + '0');
+            n /= 2;
+        }
+        reverse(res);
+        return res;
+    }
 };
-
-#endif // MAZE_GENERATOR_H
