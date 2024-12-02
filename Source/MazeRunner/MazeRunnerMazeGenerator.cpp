@@ -55,7 +55,7 @@ MazeRunnerMazeGenerator::MazeRunnerMazeGenerator(int height, int width) {
     shuffle(_edges.begin(), _edges.end(), g);
 }
 
-pair<Cell, Cell> MazeRunnerMazeGenerator::getBeginEnd() {
+pair<pair<int,int>, pair<int,int>> MazeRunnerMazeGenerator::getBeginEnd() {
     int height = _grid.size();
     int width = _grid[0].size();
 
@@ -67,8 +67,8 @@ pair<Cell, Cell> MazeRunnerMazeGenerator::getBeginEnd() {
 
     int maximum_distance = sqrt((width * width) + (height * height));
     int distance;
-    Cell begin;
-    Cell end;
+    pair<int,int> begin;
+    pair<int,int> end;
     const int MAX_ITERATIONS = 10;
     int i = 0;
     do {
@@ -142,9 +142,9 @@ vector<vector<int>> MazeRunnerMazeGenerator::getMazeMap() {
 }
 
 // Function to display the maze
-void MazeRunnerMazeGenerator::printMaze(vector<Cell> solution) {
-    set<Cell> st;
-    for (Cell c : solution) {
+void MazeRunnerMazeGenerator::printMaze(vector<pair<int,int>> solution) {
+    set<pair<int,int>> st;
+    for (pair<int,int> c : solution) {
         st.insert(c);
     }
 
@@ -199,13 +199,13 @@ void MazeRunnerMazeGenerator::setMazeMap() {
     _mazeMap = mazeMap;
 }
 
-int MazeRunnerMazeGenerator::getWalls(vector<vector<int>>& vv, Cell c) {
+int MazeRunnerMazeGenerator::getWalls(vector<vector<int>>& vv, pair<int,int> c) {
     int x = c.first;
     int y = c.second;
     return vv[y][x];
 }
 
-bool MazeRunnerMazeGenerator::hasPassage(vector<vector<int>>& vv, Cell c, int direction) {
+bool MazeRunnerMazeGenerator::hasPassage(vector<vector<int>>& vv, pair<int,int> c, int direction) {
     int x = c.first;
     int y = c.second;
     return !(getWalls(vv, c) & direction);
@@ -219,7 +219,7 @@ vector<vector<int>> MazeRunnerMazeGenerator::getCornerMap() {
     vector<int> cornerMask = { CORNER_LEFT_UP, CORNER_RIGHT_UP, CORNER_LEFT_DOWN, CORNER_RIGHT_DOWN };
     for (int y = 0; y < height; y++) {
         for (int x = 0; x < width; x++) {
-            Cell c = { x, y };
+            pair<int,int> c = { x, y };
             int corner = 0;
 
             vector<int> verticalIndices = { y - 1, y + 1 };
@@ -259,8 +259,8 @@ vector<vector<int>> MazeRunnerMazeGenerator::getCornerMap() {
     return cornerMap;
 }
 
-vector<Cell> MazeRunnerMazeGenerator::solve(Cell begin, Cell end) {
-    vector<Cell> stack;
+vector<pair<int,int>> MazeRunnerMazeGenerator::solve(pair<int,int> begin, pair<int,int> end) {
+    vector<pair<int,int>> stack;
     int height = _grid.size();
     int width = _grid[0].size();
     vector<vector<bool>> visited(_grid.size(), vector<bool>(_grid[0].size(), false));
@@ -269,7 +269,7 @@ vector<Cell> MazeRunnerMazeGenerator::solve(Cell begin, Cell end) {
     return stack;
 }
 
-void MazeRunnerMazeGenerator::dfs(Cell begin, Cell end, vector<Cell>& stack, vector<vector<bool>>& visited) {
+void MazeRunnerMazeGenerator::dfs(pair<int,int> begin, pair<int,int> end, vector<pair<int,int>>& stack, vector<vector<bool>>& visited) {
     if (begin == end) {
         stack.push_back(begin);  // Mark the final cell in the stack
         return;
@@ -281,8 +281,8 @@ void MazeRunnerMazeGenerator::dfs(Cell begin, Cell end, vector<Cell>& stack, vec
     visited[begin.second][begin.first] = true;
     stack.push_back(begin);
 
-    vector<Cell> neighbours = getUnvisitedNeighbours(begin, visited);
-    for (Cell neighbour : neighbours) {
+    vector<pair<int,int>> neighbours = getUnvisitedNeighbours(begin, visited);
+    for (pair<int,int> neighbour : neighbours) {
         // Recursive depth first search call for each neighbor
         dfs(neighbour, end, stack, visited);
 
@@ -295,8 +295,8 @@ void MazeRunnerMazeGenerator::dfs(Cell begin, Cell end, vector<Cell>& stack, vec
     stack.pop_back();
 }
 
-vector<Cell> MazeRunnerMazeGenerator::getNeighbours(Cell c) {
-    vector<Cell> neighbours;
+vector<pair<int,int>> MazeRunnerMazeGenerator::getNeighbours(pair<int,int> c) {
+    vector<pair<int,int>> neighbours;
 
     int height = _grid.size();
     int width = _grid[0].size();
@@ -320,9 +320,9 @@ vector<Cell> MazeRunnerMazeGenerator::getNeighbours(Cell c) {
     return neighbours;
 }
 
-vector<Cell> MazeRunnerMazeGenerator::getUnvisitedNeighbours(Cell c, vector<vector<bool>>& visited) {
-    vector<Cell> unvisitedNeighbours;
-    vector<Cell> neighbours = getNeighbours(c);
+vector<pair<int,int>> MazeRunnerMazeGenerator::getUnvisitedNeighbours(pair<int,int> c, vector<vector<bool>>& visited) {
+    vector<pair<int,int>> unvisitedNeighbours;
+    vector<pair<int,int>> neighbours = getNeighbours(c);
 
     int height = _grid.size();
     int width = _grid[0].size();

@@ -37,7 +37,7 @@ TArray<int32> AMazeGenerator::generateMaze(int rows, int columns)
 	}
 	MazeRunnerMazeGenerator maze = generator.value();
 	maze.kruskals_algorithm();
-	pair<Cell, Cell> pos = maze.getBeginEnd();
+	pair<pair<int,int>, pair<int,int>> pos = maze.getBeginEnd();
 	vector<vector<int>> maze2d = maze.getMazeMap();
 	vector<int> mazeMap = Utils::flatten(maze2d);
 	
@@ -67,11 +67,11 @@ TArray<int32> AMazeGenerator::generateMaze(int rows, int columns)
 	this->mazeEnd = FVector(static_cast<float>(pos.second.first), static_cast<float>(pos.second.second), 0.0f);
 
 	// map vector<Cell> to TArray<FVector>
-	std::vector<Cell> solCells = maze.solve(pos.first, pos.second);
+	std::vector<pair<int,int>> solCells = maze.solve(pos.first, pos.second);
 	TArray<FVector> fVecArr;
 	fVecArr.Reserve(solCells.size()); // Reserve memory for efficiency
 
-	for (const Cell& cell : solCells)
+	for (const pair<int,int>& cell : solCells)
 	{
 		fVecArr.Add(FVector(static_cast<float>(cell.first), static_cast<float>(cell.second), 0.0f));
 	}
