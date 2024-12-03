@@ -1,9 +1,9 @@
 #pragma once
 
+#include <optional>
 #include <vector>
 #include <unordered_map>
 #include <string>
-
 using namespace std;
 
 // Source: maze.h based on a Ruby Kurskal's algorithm implementation from: https://weblog.jamisbuck.org/2011/1/3/maze-generation-kruskal-s-algorithm
@@ -19,7 +19,7 @@ private:
     Tree* _parent;
 };
 
-typedef pair<int, int> Cell;
+
 
 constexpr int N = 1;
 constexpr int S = 1 << 1;
@@ -33,72 +33,34 @@ constexpr int CORNER_RIGHT_DOWN = 1 << 3;
 
 class MazeRunnerMazeGenerator {
 public:
-    MazeRunnerMazeGenerator(int height, int width);
+    static optional<MazeRunnerMazeGenerator> create(int height, int width);
     void kruskals_algorithm();
     void aldous_broder_algorithm();
 
-    pair<Cell, Cell> getBeginEnd();
-    vector<Cell> solve(Cell begin, Cell end);
+    pair<pair<int,int>, pair<int,int>> getBeginEnd();
+    vector<pair<int,int>> solve(pair<int,int> begin, pair<int,int> end);
 
-    void printMaze(vector<Cell> solution = {});
+    void printMaze(vector<pair<int,int>> solution = {});
+    vector<vector<int>> getCornerMap();
     vector<vector<int>> getMazeMap();
-    vector<vector<int>> getCornerMap(vector<vector<int>>& mazeMap);
 
 private:
-    vector<Cell> getNeighbours(Cell c);
-    vector<Cell> getUnvisitedNeighbours(Cell c, vector<vector<bool>>& visited);
-    void dfs(Cell begin, Cell end, vector<Cell>& stack, vector<vector<bool>>& visited);
-    bool hasPassage(vector<vector<int>>& vv, Cell c, int direction);
-    int getWalls(vector<vector<int>>& vv, Cell c);
+    MazeRunnerMazeGenerator(int height, int width);
+    vector<pair<int,int>> getNeighbours(pair<int,int> c);
+    vector<pair<int,int>> getUnvisitedNeighbours(pair<int,int> c, vector<vector<bool>>& visited);
+    void dfs(pair<int,int> begin, pair<int,int> end, vector<pair<int,int>>& stack, vector<vector<bool>>& visited);
+    bool hasPassage(vector<vector<int>>& vv, pair<int,int> c, int direction);
+    int getWalls(vector<vector<int>>& vv, pair<int,int> c);
+    void setMazeMap();
 
 private:
     vector<vector<int>> _edges;
     vector<vector<int>> _grid;
     vector<vector<Tree>> _sets;
+    vector<vector<int>> _mazeMap;
 
     unordered_map<int, int> _dx = { {E, 1}, {W, -1}, {N, 0}, {S, 0} };
     unordered_map<int, int> _dy = { {E, 0}, {W, 0}, {N, -1}, {S, 1} };
     unordered_map<int, int> _opposite = { {E, W}, {W, E}, {N, S}, {S, N} };
-    vector<Cell> _directions = { {0, -1}, {0, 1}, {-1, 0}, {1, 0} };
-};
-
-template<typename T>
-class Utils {
-public:
-    vector<T> flatten(vector<vector<T>>& vv) {
-        int height = vv.size();
-        int width = vv[0].size();
-        if (height <= 0 || width <= 0) {
-            return {};
-        }
-        vector<T> res(height * width);
-        for (size_t y = 0; y < height; y++) {
-            for (size_t x = 0; x < width; x++) {
-                res[(y * width) + x] = vv[y][x];
-            }
-        }
-        return res;
-    }
-    void reverse(string& s) {
-        int l = 0;
-        int r = s.size() - 1;
-        while (l < r) {
-            swap(s[l], s[r]);
-            l++;
-            r--;
-        }
-    }
-    string toBinary(int n) {
-        if (n == 0) {
-            return { '0' };
-        }
-        string res;
-        while (n) {
-            int remainder = n % 2;
-            res.push_back(remainder + '0');
-            n /= 2;
-        }
-        reverse(res);
-        return res;
-    }
+    vector<pair<int,int>> _directions = { {0, -1}, {0, 1}, {-1, 0}, {1, 0} };
 };

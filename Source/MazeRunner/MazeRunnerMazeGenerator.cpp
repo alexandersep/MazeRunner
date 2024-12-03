@@ -27,6 +27,13 @@ void Tree::connect(Tree* tree) {
     tree->root()->_parent = this;
 }
 
+optional<MazeRunnerMazeGenerator> MazeRunnerMazeGenerator::create(int height, int width) {
+    if (height <= 0 || width <= 0) {
+        return nullopt;
+    }
+    return MazeRunnerMazeGenerator(height, width);
+}
+
 MazeRunnerMazeGenerator::MazeRunnerMazeGenerator(int height, int width) {
     _grid = vector<vector<int>>(height, vector<int>(width, 0));
     _sets = vector<vector<Tree>>(height, vector<Tree>(width, Tree()));
@@ -48,15 +55,9 @@ MazeRunnerMazeGenerator::MazeRunnerMazeGenerator(int height, int width) {
     shuffle(_edges.begin(), _edges.end(), g);
 }
 
-pair<Cell, Cell> MazeRunnerMazeGenerator::getBeginEnd() {
+pair<pair<int,int>, pair<int,int>> MazeRunnerMazeGenerator::getBeginEnd() {
     int height = _grid.size();
-    if (height <= 0) {
-        return {};
-    }
     int width = _grid[0].size();
-    if (width <= 0) {
-        return {};
-    }
 
     random_device rd;  // Seed for randomness
     mt19937 gen(rd()); // Mersenne Twister RNG
@@ -66,13 +67,16 @@ pair<Cell, Cell> MazeRunnerMazeGenerator::getBeginEnd() {
 
     int maximum_distance = sqrt((width * width) + (height * height));
     int distance;
-    Cell begin;
-    Cell end;
+    pair<int,int> begin;
+    pair<int,int> end;
+    const int MAX_ITERATIONS = 10;
+    int i = 0;
     do {
         begin = { gx(gen), gy(gen) };
         end = { gx(gen), gy(gen) };
         distance = sqrt(pow(begin.first - end.first, 2) + pow(begin.second - end.second, 2));
-    } while ((maximum_distance >> 1) >= distance);
+        i++;
+    } while ((maximum_distance >> 1) >= distance && i < MAX_ITERATIONS);
 
     return { begin, end };
 }
@@ -96,19 +100,13 @@ void MazeRunnerMazeGenerator::kruskals_algorithm() {
             _grid[ny][nx] |= _opposite[direction];
         }
     }
+    setMazeMap();
 }
 
 void MazeRunnerMazeGenerator::aldous_broder_algorithm() {
     int height = _grid.size();
-    if (height <= 0) {
-        return;
-    }
     int width = _grid[0].size();
-    if (width <= 0) {
-        return;
-    }
 
-    // 1. Pick a random cell as the current cell and mark it as visited
     int x = rand() % width;
     int y = rand() % height;
 
@@ -136,24 +134,23 @@ void MazeRunnerMazeGenerator::aldous_broder_algorithm() {
             }
         }
     }
+    setMazeMap();
+}
+
+vector<vector<int>> MazeRunnerMazeGenerator::getMazeMap() {
+    return _mazeMap;
 }
 
 // Function to display the maze
-void MazeRunnerMazeGenerator::printMaze(vector<Cell> solution) {
-    set<Cell> st;
-    for (Cell c : solution) {
+void MazeRunnerMazeGenerator::printMaze(vector<pair<int,int>> solution) {
+    set<pair<int,int>> st;
+    for (pair<int,int> c : solution) {
         st.insert(c);
     }
 
     cout << "\x1b[H";
     int height = _grid.size();
-    if (height <= 0) {
-        return;
-    }
     int width = _grid[0].size();
-    if (width <= 0) {
-        return;
-    }
     cout << " " << string(width * 2 - 1, '_') << endl;
 
     for (int y = 0; y < height; y++) {
@@ -183,15 +180,9 @@ void MazeRunnerMazeGenerator::printMaze(vector<Cell> solution) {
     }
 }
 
-vector<vector<int>> MazeRunnerMazeGenerator::getMazeMap() {
+void MazeRunnerMazeGenerator::setMazeMap() {
     int height = _grid.size();
-    if (height <= 0) {
-        return {};
-    }
     int width = _grid[0].size();
-    if (width <= 0) {
-        return {};
-    }
 
     vector<vector<int>> mazeMap(height, vector<int>(width, 0));
     for (int y = 0; y < height; ++y) {
@@ -205,65 +196,59 @@ vector<vector<int>> MazeRunnerMazeGenerator::getMazeMap() {
             mazeMap[y][x] = walls;
         }
     }
-    return mazeMap;
+    _mazeMap = mazeMap;
 }
 
-int MazeRunnerMazeGenerator::getWalls(vector<vector<int>>& vv, Cell c) {
+int MazeRunnerMazeGenerator::getWalls(vector<vector<int>>& vv, pair<int,int> c) {
     int x = c.first;
     int y = c.second;
     return vv[y][x];
 }
 
-bool MazeRunnerMazeGenerator::hasPassage(vector<vector<int>>& vv, Cell c, int direction) {
+bool MazeRunnerMazeGenerator::hasPassage(vector<vector<int>>& vv, pair<int,int> c, int direction) {
     int x = c.first;
     int y = c.second;
     return !(getWalls(vv, c) & direction);
 }
 
-vector<vector<int>> MazeRunnerMazeGenerator::getCornerMap(vector<vector<int>>& mazeMap) {
+vector<vector<int>> MazeRunnerMazeGenerator::getCornerMap() {
     int height = _grid.size();
-    if (height <= 0) {
-        return {};
-    }
     int width = _grid[0].size();
-    if (width <= 0) {
-        return {};
-    }
 
     vector<vector<int>> cornerMap(height, vector<int>(width, 0));
+    vector<int> cornerMask = { CORNER_LEFT_UP, CORNER_RIGHT_UP, CORNER_LEFT_DOWN, CORNER_RIGHT_DOWN };
     for (int y = 0; y < height; y++) {
         for (int x = 0; x < width; x++) {
-            int current = mazeMap[y][x];
-            Cell c = { x, y };
+            pair<int,int> c = { x, y };
             int corner = 0;
 
-            vector<int> yVal = { y - 1, y + 1 };
-            vector<bool> yBool = { y - 1 >= 0, y + 1 < height };
-            vector<int> cs = { N, S };
-            for (int i = 0; i < yBool.size(); i++) {
-                if (yBool[i] && hasPassage(mazeMap, c, cs[i])) {
-                    int dirLeft = mazeMap[yVal[i]][x] & W;
-                    int leftDir = 0;
+            vector<int> verticalIndices = { y - 1, y + 1 };
+            vector<bool> verticalCondition = { y - 1 >= 0, y + 1 < height };
+            vector<int> upDown = { N, S };
+            for (int i = 0; i < verticalCondition.size(); i++) {
+                if (verticalCondition[i] && hasPassage(_mazeMap, c, upDown[i])) {
+                    int verticalIndex = verticalIndices[i];
+                    int backwardIndex = upDown.size() - 1 - i;
 
-                    int dirRight = mazeMap[yVal[i]][x] & E;
-                    int rightDir = 0;
-                    if (x - 1 >= 0 && hasPassage(mazeMap, c, W)) leftDir = mazeMap[yVal[i]][x - 1] & cs[cs.size() - 1 - i];
-                    if (x + 1 < width && hasPassage(mazeMap, c, E)) rightDir = mazeMap[yVal[i]][x + 1] & cs[cs.size() - 1 - i];
+                    vector<int> horitonzalIndices = { x - 1, x + 1 };
+                    vector<bool> horizontalCondition = { x - 1 >= 0, x + 1 < height };
+                    vector<int> leftRight = { W, E };
+                    for (int j = 0; j < horitonzalIndices.size(); j++) {
+                        int currentCell = _mazeMap[verticalIndex][x];
+                        int dirCell = _mazeMap[verticalIndex][horitonzalIndices[j]];
 
-                    if (dirLeft && leftDir) {
-                        if (cs[i] == N) {
-                            corner |= CORNER_LEFT_UP;
+                        int dir = currentCell & leftRight[j];
+                        int cellDir = 0;
+                        if (horizontalCondition[j] && hasPassage(_mazeMap, c, leftRight[j])) {
+                            cellDir = dirCell & upDown[backwardIndex];
                         }
-                        else {
-                            corner |= CORNER_LEFT_DOWN;
-                        }
-                    }
-                    if (dirRight && rightDir) {
-                        if (cs[i] == N) {
-                            corner |= CORNER_RIGHT_UP;
-                        }
-                        else {
-                            corner |= CORNER_RIGHT_DOWN;
+                        if (cellDir && dir) {
+                            if (upDown[i] == N) {
+                                corner |= cornerMask[i + j];
+                            }
+                            else {
+                                corner |= cornerMask[i + j + 1];
+                            }
                         }
                     }
                 }
@@ -274,23 +259,17 @@ vector<vector<int>> MazeRunnerMazeGenerator::getCornerMap(vector<vector<int>>& m
     return cornerMap;
 }
 
-vector<Cell> MazeRunnerMazeGenerator::solve(Cell begin, Cell end) {
-    vector<Cell> stack;
+vector<pair<int,int>> MazeRunnerMazeGenerator::solve(pair<int,int> begin, pair<int,int> end) {
+    vector<pair<int,int>> stack;
     int height = _grid.size();
-    if (height <= 0) {
-        return {};
-    }
     int width = _grid[0].size();
-    if (width <= 0) {
-        return {};
-    }
     vector<vector<bool>> visited(_grid.size(), vector<bool>(_grid[0].size(), false));
     dfs(begin, end, stack, visited);
 
     return stack;
 }
 
-void MazeRunnerMazeGenerator::dfs(Cell begin, Cell end, vector<Cell>& stack, vector<vector<bool>>& visited) {
+void MazeRunnerMazeGenerator::dfs(pair<int,int> begin, pair<int,int> end, vector<pair<int,int>>& stack, vector<vector<bool>>& visited) {
     if (begin == end) {
         stack.push_back(begin);  // Mark the final cell in the stack
         return;
@@ -302,8 +281,8 @@ void MazeRunnerMazeGenerator::dfs(Cell begin, Cell end, vector<Cell>& stack, vec
     visited[begin.second][begin.first] = true;
     stack.push_back(begin);
 
-    vector<Cell> neighbours = getUnvisitedNeighbours(begin, visited);
-    for (Cell neighbour : neighbours) {
+    vector<pair<int,int>> neighbours = getUnvisitedNeighbours(begin, visited);
+    for (pair<int,int> neighbour : neighbours) {
         // Recursive depth first search call for each neighbor
         dfs(neighbour, end, stack, visited);
 
@@ -316,28 +295,22 @@ void MazeRunnerMazeGenerator::dfs(Cell begin, Cell end, vector<Cell>& stack, vec
     stack.pop_back();
 }
 
-vector<Cell> MazeRunnerMazeGenerator::getNeighbours(Cell c) {
-    vector<Cell> neighbours;
+vector<pair<int,int>> MazeRunnerMazeGenerator::getNeighbours(pair<int,int> c) {
+    vector<pair<int,int>> neighbours;
 
     int height = _grid.size();
-    if (height <= 0) {
-        return {};
-    }
     int width = _grid[0].size();
-    if (width <= 0) {
-        return {};
-    }
 
     int x = c.first;
     int y = c.second;
 
-    if (y - 1 > 0) {
+    if (y - 1 >= 0) {
         neighbours.push_back({ x, y - 1 });
     }
     if (y + 1 < height) {
         neighbours.push_back({ x, y + 1 });
     }
-    if (x - 1 > 0) {
+    if (x - 1 >= 0) {
         neighbours.push_back({ x - 1, y });
     }
     if (x + 1 < width) {
@@ -347,18 +320,12 @@ vector<Cell> MazeRunnerMazeGenerator::getNeighbours(Cell c) {
     return neighbours;
 }
 
-vector<Cell> MazeRunnerMazeGenerator::getUnvisitedNeighbours(Cell c, vector<vector<bool>>& visited) {
-    vector<Cell> unvisitedNeighbours;
-    vector<Cell> neighbours = getNeighbours(c);
+vector<pair<int,int>> MazeRunnerMazeGenerator::getUnvisitedNeighbours(pair<int,int> c, vector<vector<bool>>& visited) {
+    vector<pair<int,int>> unvisitedNeighbours;
+    vector<pair<int,int>> neighbours = getNeighbours(c);
 
     int height = _grid.size();
-    if (height <= 0) {
-        return {};
-    }
     int width = _grid[0].size();
-    if (width <= 0) {
-        return {};
-    }
 
     int x = c.first;
     int y = c.second;
