@@ -43,6 +43,7 @@ public:
     void printMaze(vector<pair<int,int>> solution = {});
     vector<vector<int>> getCornerMap();
     vector<vector<int>> getMazeMap();
+    vector<vector<bool>> getKeyMap();
 
 private:
     MazeRunnerMazeGenerator(int height, int width);
@@ -52,6 +53,9 @@ private:
     bool hasPassage(vector<vector<int>>& vv, pair<int,int> c, int direction);
     int getWalls(vector<vector<int>>& vv, pair<int,int> c);
     void setMazeMap();
+    pair<int, int> getRandomPair(int xmin, int ymin, int xmax, int ymax);
+    pair<int, int> getRandomPair(pair<int, int> min, pair<int, int> max);
+
 
 private:
     vector<vector<int>> _edges;

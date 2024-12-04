@@ -259,6 +259,62 @@ vector<vector<int>> MazeRunnerMazeGenerator::getCornerMap() {
     return cornerMap;
 }
 
+pair<int, int> MazeRunnerMazeGenerator::getRandomPair(int xmin, int ymin, int xmax, int ymax) {
+    random_device random;
+    mt19937 gen(random());
+
+    uniform_int_distribution<int> x(xmin, xmax);
+    uniform_int_distribution<int> y(ymin, ymax);
+
+    return { x(gen), y(gen) };
+}
+
+pair<int, int> MazeRunnerMazeGenerator::getRandomPair(pair<int, int> min, pair<int, int> max) {
+    return getRandomPair(min.first, min.second, max.first, max.second);
+}
+
+vector<vector<bool>> MazeRunnerMazeGenerator::getKeyMap() {
+    int height = _grid.size();
+    int width = _grid[0].size();
+    if (height <= 1 || width <= 1) {
+        return {};
+    }
+    vector<vector<bool>> keyMap(height, vector<bool>(width, false)); // No keys anywhere by default
+    height--; // to get index range
+    width--;
+
+    int divHeight = height / 2;
+    int divWidth = width / 2;
+
+    // split into 4 separate locations
+    pair<int, int> topLeftGridMin = { 0, 0 }; // inclusive 0,0 
+    pair<int, int> topLeftGridMax = { divWidth - 1, divHeight - 1 }; // exclusive divWidth, divHeight
+
+    pair<int, int> topRightGridMin = { divWidth, 0 };
+    pair<int, int> topRightGridMax = { width, divHeight -1 };
+
+    pair<int, int> bottomLeftGridMin = { 0, divHeight };
+    pair<int, int> bottomLeftGridMax = { divWidth - 1, height }; 
+
+    pair<int, int> bottomRightGridMin = { divWidth, divHeight };
+    pair<int, int> bottomRightGridMax = { width, height };
+
+    pair<int, int> keyLocation;
+    keyLocation = getRandomPair(topLeftGridMin, topLeftGridMax); 
+    keyMap[keyLocation.second][keyLocation.first] = true;
+
+    keyLocation = getRandomPair(topRightGridMin, topRightGridMax);
+    keyMap[keyLocation.second][keyLocation.first] = true;
+
+    keyLocation = getRandomPair(bottomLeftGridMin, bottomLeftGridMax);
+    keyMap[keyLocation.second][keyLocation.first] = true;
+
+    keyLocation = getRandomPair(bottomRightGridMin, bottomRightGridMax);
+    keyMap[keyLocation.second][keyLocation.first] = true;
+
+    return keyMap;
+}
+
 vector<pair<int,int>> MazeRunnerMazeGenerator::solve(pair<int,int> begin, pair<int,int> end) {
     vector<pair<int,int>> stack;
     int height = _grid.size();

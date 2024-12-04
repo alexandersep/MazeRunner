@@ -66,8 +66,10 @@ TArray<int32> AMazeGenerator::generateMaze(int rows, int columns)
 	// map pos.second to FVector mazeEnd
 	this->mazeEnd = FVector(static_cast<float>(pos.second.first), static_cast<float>(pos.second.second), 0.0f);
 
+	vector<vector<bool>> keyMap = maze.getKeyMap();
+
 	// map vector<Cell> to TArray<FVector>
-	std::vector<pair<int,int>> solCells = maze.solve(pos.first, pos.second);
+	vector<pair<int,int>> solCells = maze.solve(pos.first, pos.second);
 	TArray<FVector> fVecArr;
 	fVecArr.Reserve(solCells.size()); // Reserve memory for efficiency
 
