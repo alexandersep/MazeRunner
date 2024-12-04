@@ -60,13 +60,22 @@ TArray<int32> AMazeGenerator::generateMaze(int rows, int columns)
 
 	this->cornersGrid = cornersArr;
 
+	// get and map keys
+	vector<vector<int>> items2d = maze.getItemMap();
+	vector<int> itemMap = Utils::flatten(items2d);
+	TArray<int32> itemsArr;
+	itemsArr.SetNumUninitialized(itemMap.size());
+	for (int i = 0; i < itemMap.size(); i++) {
+		itemsArr[i] = itemMap[i];
+	}
+
+	this->itemsGrid = itemsArr;
+
 	// map pos.first to FVector mazeStart
 	this->mazeStart = FVector(static_cast<float>(pos.first.first), static_cast<float>(pos.first.second), 0.0f);
 
 	// map pos.second to FVector mazeEnd
 	this->mazeEnd = FVector(static_cast<float>(pos.second.first), static_cast<float>(pos.second.second), 0.0f);
-
-	vector<vector<bool>> keyMap = maze.getKeyMap();
 
 	// map vector<Cell> to TArray<FVector>
 	vector<pair<int,int>> solCells = maze.solve(pos.first, pos.second);

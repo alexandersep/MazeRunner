@@ -18,8 +18,12 @@ public:
 	TArray<int32> wallsGrid;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TArray<int32> cornersGrid;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TArray<int32> itemsGrid;
+
 	FVector mazeStart;
 	FVector mazeEnd;
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TArray<FVector> solution;
 

@@ -273,13 +273,13 @@ pair<int, int> MazeRunnerMazeGenerator::getRandomPair(pair<int, int> min, pair<i
     return getRandomPair(min.first, min.second, max.first, max.second);
 }
 
-vector<vector<bool>> MazeRunnerMazeGenerator::getKeyMap() {
+vector<vector<int>> MazeRunnerMazeGenerator::getItemMap() {
     int height = _grid.size();
     int width = _grid[0].size();
     if (height <= 1 || width <= 1) {
         return {};
     }
-    vector<vector<bool>> keyMap(height, vector<bool>(width, false)); // No keys anywhere by default
+    vector<vector<int>> itemMap(height, vector<int>(width, 0)); // No keys anywhere by default
     height--; // to get index range
     width--;
 
@@ -301,18 +301,18 @@ vector<vector<bool>> MazeRunnerMazeGenerator::getKeyMap() {
 
     pair<int, int> keyLocation;
     keyLocation = getRandomPair(topLeftGridMin, topLeftGridMax); 
-    keyMap[keyLocation.second][keyLocation.first] = true;
+    itemMap[keyLocation.second][keyLocation.first] = 1;
 
     keyLocation = getRandomPair(topRightGridMin, topRightGridMax);
-    keyMap[keyLocation.second][keyLocation.first] = true;
+    itemMap[keyLocation.second][keyLocation.first] = 1;
 
     keyLocation = getRandomPair(bottomLeftGridMin, bottomLeftGridMax);
-    keyMap[keyLocation.second][keyLocation.first] = true;
+    itemMap[keyLocation.second][keyLocation.first] = 1;
 
     keyLocation = getRandomPair(bottomRightGridMin, bottomRightGridMax);
-    keyMap[keyLocation.second][keyLocation.first] = true;
+    itemMap[keyLocation.second][keyLocation.first] = 1;
 
-    return keyMap;
+    return itemMap;
 }
 
 vector<pair<int,int>> MazeRunnerMazeGenerator::solve(pair<int,int> begin, pair<int,int> end) {
