@@ -273,7 +273,7 @@ pair<int, int> MazeRunnerMazeGenerator::getRandomPair(pair<int, int> min, pair<i
     return getRandomPair(min.first, min.second, max.first, max.second);
 }
 
-vector<vector<int>> MazeRunnerMazeGenerator::getItemMap() {
+vector<vector<int>> MazeRunnerMazeGenerator::getTileContentsMap() {
     int height = _grid.size();
     int width = _grid[0].size();
     if (height <= 1 || width <= 1) {
