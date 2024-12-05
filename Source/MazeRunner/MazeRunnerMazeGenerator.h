@@ -19,8 +19,6 @@ private:
     Tree* _parent;
 };
 
-
-
 constexpr int N = 1;
 constexpr int S = 1 << 1;
 constexpr int E = 1 << 2;
