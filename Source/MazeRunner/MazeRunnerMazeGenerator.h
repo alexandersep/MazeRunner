@@ -43,7 +43,7 @@ public:
     void printMaze(vector<pair<int,int>> solution = {});
     vector<vector<int>> getCornerMap();
     vector<vector<int>> getMazeMap();
-    vector<vector<int>> getItemMap();
+    vector<vector<int>> getTileContentsMap(pair<int, int> begin, pair<int, int> end);
 
 private:
     MazeRunnerMazeGenerator(int height, int width);

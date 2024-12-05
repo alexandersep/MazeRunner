@@ -273,46 +273,47 @@ pair<int, int> MazeRunnerMazeGenerator::getRandomPair(pair<int, int> min, pair<i
     return getRandomPair(min.first, min.second, max.first, max.second);
 }
 
-vector<vector<int>> MazeRunnerMazeGenerator::getItemMap() {
+/*
+return: int, 
+0 -> empty
+1 -> key
+2 -> begin
+3 -> end
+*/
+vector<vector<int>> MazeRunnerMazeGenerator::getTileContentsMap(pair<int, int> begin, pair<int, int> end) {
     int height = _grid.size();
     int width = _grid[0].size();
     if (height <= 1 || width <= 1) {
         return {};
     }
-    vector<vector<int>> itemMap(height, vector<int>(width, 0)); // No keys anywhere by default
+    vector<vector<int>> tileContents(height, vector<int>(width, 0)); // no tile contents
+    tileContents[begin.second][begin.first] = 2;
+    tileContents[end.second][end.first] = 3;
     height--; // to get index range
     width--;
 
     int divHeight = height / 2;
     int divWidth = width / 2;
 
-    // split into 4 separate locations
-    pair<int, int> topLeftGridMin = { 0, 0 }; // inclusive 0,0 
-    pair<int, int> topLeftGridMax = { divWidth - 1, divHeight - 1 }; // exclusive divWidth, divHeight
+    vector<pair<pair<int, int>, pair<int, int>>> gridLocations = {
+        {{0, 0}, {divWidth - 1, divHeight - 1}},
+        {{divWidth, 0}, {width, divHeight - 1}},
+        {{0, divHeight}, {divWidth - 1, height}},
+        {{divWidth, divHeight}, {width, height}}
+    };
 
-    pair<int, int> topRightGridMin = { divWidth, 0 };
-    pair<int, int> topRightGridMax = { width, divHeight -1 };
+    vector<pair<int, int>> keyLocations;
 
-    pair<int, int> bottomLeftGridMin = { 0, divHeight };
-    pair<int, int> bottomLeftGridMax = { divWidth - 1, height }; 
+    for (const pair<pair<int, int>, pair<int, int>> & grid : gridLocations) {
+        pair<int, int> keyLocation;
+        do {
+            keyLocation = getRandomPair(grid.first, grid.second);
+        } while (keyLocation == begin || keyLocation == end || find(keyLocations.begin(), keyLocations.end(), keyLocation) != keyLocations.end());
+        keyLocations.push_back(keyLocation);
+        tileContents[keyLocation.second][keyLocation.first] = 1;
+    }
 
-    pair<int, int> bottomRightGridMin = { divWidth, divHeight };
-    pair<int, int> bottomRightGridMax = { width, height };
-
-    pair<int, int> keyLocation;
-    keyLocation = getRandomPair(topLeftGridMin, topLeftGridMax); 
-    itemMap[keyLocation.second][keyLocation.first] = 1;
-
-    keyLocation = getRandomPair(topRightGridMin, topRightGridMax);
-    itemMap[keyLocation.second][keyLocation.first] = 1;
-
-    keyLocation = getRandomPair(bottomLeftGridMin, bottomLeftGridMax);
-    itemMap[keyLocation.second][keyLocation.first] = 1;
-
-    keyLocation = getRandomPair(bottomRightGridMin, bottomRightGridMax);
-    itemMap[keyLocation.second][keyLocation.first] = 1;
-
-    return itemMap;
+    return tileContents;
 }
 
 vector<pair<int,int>> MazeRunnerMazeGenerator::solve(pair<int,int> begin, pair<int,int> end) {

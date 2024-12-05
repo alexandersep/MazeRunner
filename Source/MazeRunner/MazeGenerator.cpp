@@ -61,7 +61,7 @@ TArray<int32> AMazeGenerator::generateMaze(int rows, int columns)
 	this->cornersGrid = cornersArr;
 
 	// get and map keys
-	vector<vector<int>> items2d = maze.getItemMap();
+	vector<vector<int>> items2d = maze.getTileContentsMap(pos.first, pos.second);
 	vector<int> itemMap = Utils::flatten(items2d);
 	TArray<int32> itemsArr;
 	itemsArr.SetNumUninitialized(itemMap.size());
