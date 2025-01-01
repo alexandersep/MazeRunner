@@ -286,9 +286,17 @@ vector<vector<int>> MazeRunnerMazeGenerator::getTileContentsMap(pair<int, int> b
     if (height <= 1 || width <= 1) {
         return {};
     }
-    vector<vector<int>> tileContents(height, vector<int>(width, 0)); // no tile contents
-    tileContents[begin.second][begin.first] = 2;
-    tileContents[end.second][end.first] = 3;
+    enum TileContent {
+        EMPTY,
+        KEY,
+        BEGIN,
+        END,
+        TRAP,
+    };
+
+    vector<vector<int>> tileContents(height, vector<int>(width, EMPTY)); // no tile contents
+    tileContents[begin.second][begin.first] = BEGIN;
+    tileContents[end.second][end.first] = END;
     height--; // to get index range
     width--;
 
@@ -310,7 +318,17 @@ vector<vector<int>> MazeRunnerMazeGenerator::getTileContentsMap(pair<int, int> b
             keyLocation = getRandomPair(grid.first, grid.second);
         } while (keyLocation == begin || keyLocation == end || find(keyLocations.begin(), keyLocations.end(), keyLocation) != keyLocations.end());
         keyLocations.push_back(keyLocation);
-        tileContents[keyLocation.second][keyLocation.first] = 1;
+        tileContents[keyLocation.second][keyLocation.first] = KEY;
+    }
+
+    vector<pair<int, int>> trapsLocations;
+    for (const pair<pair<int, int>, pair<int, int>>& grid : gridLocations) {
+        pair<int, int> trapLocation;
+        do {
+            trapLocation = getRandomPair(grid.first, grid.second);
+        } while (trapLocation == begin || trapLocation == end || find(keyLocations.begin(), keyLocations.end(), trapLocation) != keyLocations.end());
+        trapsLocations.push_back(trapLocation);
+        tileContents[trapLocation.second][trapLocation.first] = TRAP;
     }
 
     return tileContents;
