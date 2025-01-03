@@ -10,27 +10,23 @@
 DEFINE_LOG_CATEGORY_STATIC(SomeObjectSub, Log, All);
 
 // Sets default values
-AMazeGenerator::AMazeGenerator()
-{
+AMazeGenerator::AMazeGenerator() {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 }
 
 // Called when the game starts or when spawned
-void AMazeGenerator::BeginPlay()
-{
+void AMazeGenerator::BeginPlay() {
 	Super::BeginPlay();
 }
 
 // Called every frame
-void AMazeGenerator::Tick(float DeltaTime)
-{
+void AMazeGenerator::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
 
 }
 
-TArray<int32> AMazeGenerator::generateMaze(int rows, int columns)
-{
+TArray<int32> AMazeGenerator::generateMaze(int rows, int columns) {
 	auto generator = MazeRunnerMazeGenerator::create(rows, columns);
 	if (!generator) {
 		return {};
@@ -60,6 +56,17 @@ TArray<int32> AMazeGenerator::generateMaze(int rows, int columns)
 
 	this->cornersGrid = cornersArr;
 
+	// get and map keys
+	vector<vector<int>> tileContents2d = maze.getTileContentsMap(pos.first, pos.second);
+	vector<int> tileContentsFlat = Utils::flatten(tileContents2d);
+	TArray<int32> tileContents32;
+	tileContents32.SetNumUninitialized(tileContentsFlat.size());
+	for (int i = 0; i < tileContentsFlat.size(); i++) {
+		tileContents32[i] = tileContentsFlat[i];
+	}
+
+	this->tileContentsGrid = tileContents32;
+
 	// map pos.first to FVector mazeStart
 	this->mazeStart = FVector(static_cast<float>(pos.first.first), static_cast<float>(pos.first.second), 0.0f);
 
@@ -67,12 +74,11 @@ TArray<int32> AMazeGenerator::generateMaze(int rows, int columns)
 	this->mazeEnd = FVector(static_cast<float>(pos.second.first), static_cast<float>(pos.second.second), 0.0f);
 
 	// map vector<Cell> to TArray<FVector>
-	std::vector<pair<int,int>> solCells = maze.solve(pos.first, pos.second);
+	vector<pair<int,int>> solCells = maze.solve(pos.first, pos.second);
 	TArray<FVector> fVecArr;
 	fVecArr.Reserve(solCells.size()); // Reserve memory for efficiency
 
-	for (const pair<int,int>& cell : solCells)
-	{
+	for (const pair<int,int>& cell : solCells) {
 		fVecArr.Add(FVector(static_cast<float>(cell.first), static_cast<float>(cell.second), 0.0f));
 	}
 
