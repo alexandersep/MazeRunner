@@ -291,7 +291,8 @@ vector<vector<int>> MazeRunnerMazeGenerator::getTileContentsMap(pair<int, int> b
         KEY,
         BEGIN,
         END,
-        TRAP,
+        SPIKE,
+        MINE,
     };
 
     vector<vector<int>> tileContents(height, vector<int>(width, EMPTY)); // no tile contents
@@ -321,14 +322,24 @@ vector<vector<int>> MazeRunnerMazeGenerator::getTileContentsMap(pair<int, int> b
         tileContents[keyLocation.second][keyLocation.first] = KEY;
     }
 
-    vector<pair<int, int>> trapsLocations;
+    vector<pair<int, int>> spikesLocations;
     for (const pair<pair<int, int>, pair<int, int>>& grid : gridLocations) {
-        pair<int, int> trapLocation;
+        pair<int, int> spikeLocation;
         do {
-            trapLocation = getRandomPair(grid.first, grid.second);
-        } while (trapLocation == begin || trapLocation == end || find(keyLocations.begin(), keyLocations.end(), trapLocation) != keyLocations.end());
-        trapsLocations.push_back(trapLocation);
-        tileContents[trapLocation.second][trapLocation.first] = TRAP;
+            spikeLocation = getRandomPair(grid.first, grid.second);
+        } while (spikeLocation == begin || spikeLocation == end || find(keyLocations.begin(), keyLocations.end(), spikeLocation) != keyLocations.end());
+        spikesLocations.push_back(spikeLocation);
+        tileContents[spikeLocation.second][spikeLocation.first] = SPIKE;
+    }
+
+    vector<pair<int, int>> mineLocations;
+    for (const pair<pair<int, int>, pair<int, int>>& grid : gridLocations) {
+        pair<int, int> mineLocation;
+        do {
+            mineLocation = getRandomPair(grid.first, grid.second);
+        } while (mineLocation == begin || mineLocation == end || find(keyLocations.begin(), keyLocations.end(), mineLocation) != keyLocations.end());
+        mineLocations.push_back(mineLocation);
+        tileContents[mineLocation.second][mineLocation.first] = MINE;
     }
 
     return tileContents;
