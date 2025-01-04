@@ -29,7 +29,7 @@ void Tree::connect(Tree* tree) {
 
 optional<MazeRunnerMazeGenerator> MazeRunnerMazeGenerator::create(int height, int width) {
     if (height <= 0 || width <= 0) {
-        return nullopt;
+        return {};
     }
     return MazeRunnerMazeGenerator(height, width);
 }
